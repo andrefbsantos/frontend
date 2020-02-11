@@ -4,16 +4,31 @@ import Table from '../components/Table'
 import Error from '../components/Error';
 import Button from '../components/Button';
 
+import Loader from '../components/Loader';
+import { Query } from 'react-apollo';
+import gql from 'graphql-tag';
+
+export const GRAINS_QUERY = gql`
+  query {
+    grains {
+      id
+      name
+      ebc
+      description
+    }
+  }
+`
+
 const HEADERS = [{ key: 'name', name: 'Grain Name' }, {key: 'ebc', name: 'EBC' }, { key: 'description', name: 'Description' }]
 // MOCK DATA!!
-const MOCK_ROWS = [{ id: 'adnsandajs', name: 'Pils', ebc: 2, description: 'Very delicate malt to do pilsner and lighter beers' }]
+// const MOCK_ROWS = [{ id: 'adnsandajs', name: 'Pils', ebc: 2, description: 'Very delicate malt to do pilsner and lighter beers' }]
 
 export default class Grains extends Component {
   /**
    * args
    *   headers: [{ key: string, name: string }, ...]
    *   rows: [{ id: string, name: string, ebc: number, description: string }, ...]
-   * 
+   *
    * headers | array of objects containing the object key for the value as a string and the name to be displayed in the table header
    * rows | array of objects containing the keys with the needed values for the table body PLUS an id
    */
@@ -44,8 +59,16 @@ export default class Grains extends Component {
     return (
       <section>
         <h2>Grains</h2>
-        {/* TODO: UPDATE WITH REAL DATA! */}
-        { this.renderContent(HEADERS, MOCK_ROWS) }
+        <Query query={GRAINS_QUERY}>
+          {
+            ({ loading, error, data }) => {
+              if (loading) return <Loader />
+              if (error) return <Error error={error} />
+
+              return this.renderContent(HEADERS, data.grains)
+            }
+          }
+        </Query>
         <Button onClick={this.onClick}>NEW GRAIN</Button>
       </section>
     )

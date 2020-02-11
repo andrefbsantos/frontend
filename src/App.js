@@ -37,7 +37,7 @@ const Container = styled.div`
   min-height: calc(100vh - 14rem);
 `
 // UPDATE THIS CONST AND START DEVELOPMENT
-export const DEVELOPMENT_IS_READY = false
+export const DEVELOPMENT_IS_READY = true
 
 class App extends Component {
   render() {

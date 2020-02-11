@@ -18,7 +18,7 @@ const Section = styled.section`
 `
 
 const CREATE_HOP = gql`
-  mutation CREATE_HOP_MUTATION ($data: HopsCreateInput!){
+  mutation CREATE_HOP_MUTATION ($data: HopsCreateInput!) {
     createHops(data: $data) {
       id
       name

@@ -13,10 +13,14 @@ import Table from '../components/Table';
 
 
 // TODO: UPDATE QUERY TO FETCH ALL REQUIRED FIELDS...
-const BEERS_QUERY = gql`
+export const BEERS_QUERY = gql`
   query BEERS_QUERY {
     beers {
       id
+      name
+      brewery
+      abv
+      type
     }
   }
 `
@@ -39,7 +43,7 @@ class Beers extends Component {
    * args
    *   headers: [{ key: string, name: string }, ...]
    *   rows: [{ id: string, brewery: string, name: string, abv: number, description: string }, ...]
-   * 
+   *
    * headers | array of objects containing the object key for the value as a string and the name to be displayed in the table header
    * rows | array of objects containing the keys with the needed values for the table body PLUS an id
    */
@@ -94,14 +98,14 @@ class Beers extends Component {
 
           // TODO: UPDATE THIS VARIABLE WHEN YOU UPDATE YOUR BACKEND RESOLVER!
           // MOCK DATA!!!
-          const beers = [{
-            id: 'asdnasjdna',
-            brewery: 'Dois Corvos',
-            name: 'Fuzeta',
-            abv: 9.1,
-            type: 'Double IPA'
-          }]
-          return this.renderContent(HEADERS, beers);
+          // const beers = [{
+          //   id: 'asdnasjdna',
+          //   brewery: 'Dois Corvos',
+          //   name: 'Fuzeta',
+          //   abv: 9.1,
+          //   type: 'Double IPA'
+          // }]
+          return this.renderContent(HEADERS, data.beers);
         }}
       </Query>
     )
