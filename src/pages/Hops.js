@@ -10,7 +10,7 @@ import Loader from '../components/Loader';
 
 export const HOPS_QUERY = gql`
   query HOPS_QUERY {
-    hops {
+    hopses {
       id
       name
       alphaAcids
@@ -26,7 +26,7 @@ class Hops extends Component {
    * args
    *   headers: [{ key: string, name: string }, ...]
    *   rows: [{ id: string, name: string, alphaAcids: number, description: string }, ...]
-   * 
+   *
    * headers | array of objects containing the object key for the value as a string and the name to be displayed in the table header
    * rows | array of objects containing the keys with the needed values for the table body PLUS an id
    */
@@ -57,7 +57,7 @@ class Hops extends Component {
             if (loading) return <Loader />
             if (error) return <Error error={error} />
 
-            return this.renderContent(HEADERS, data.hops)
+            return this.renderContent(HEADERS, data.hopses)
           }
         }
       </Query>
