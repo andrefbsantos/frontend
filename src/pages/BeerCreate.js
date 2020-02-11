@@ -6,9 +6,13 @@ import OutlinedInput from '@material-ui/core/OutlinedInput';
 import MenuItem from '@material-ui/core/MenuItem';
 import Chip from '@material-ui/core/Chip';
 import InputLabel from '@material-ui/core/InputLabel';
+import gql from "graphql-tag"
 
 import Button from '../components/Button'
-import { Mutation } from 'react-apollo';
+import { Mutation, Query } from 'react-apollo';
+import Loader from '../components/Loader';
+import Error from '../components/Error';
+import { BEERS_QUERY } from './Beers'
 
 const Section = styled.section`
   form {
@@ -20,6 +24,48 @@ const Label = styled(InputLabel)`
   && {
     margin-top: 0.5rem;
     font-size: 0.75rem;
+  }
+`
+
+const HOPSES_GRAINS_QUERY = gql`
+  query {
+    hopses {
+      id
+      name
+    }
+    grains {
+      id
+      name
+    }
+  }
+`
+
+const CREATE_BEER = gql`
+  mutation CREATE_BEER(
+    $type: String!
+    $brewery: String!
+    $name: String!
+    $description: String!
+    $abv: Float!
+    $ibu: Float
+    $ebc: Float
+    $grains: [String]!
+    $hopses: [String]!
+  ) {
+    createBeer(
+      type: $type
+      brewery: $brewery
+      name: $name
+      description: $description
+      abv: $abv
+      ibu: $ibu
+      ebc: $ebc
+      grains: $grains
+      hopses: $hopses
+    ){
+      id
+      name
+    }
   }
 `
 
@@ -44,7 +90,7 @@ export default class BeerCreate extends Component {
     }
 
     // TODO: REMOVE THIS
-    this.updateDictionaries(HOPS_LIST, GRAINS_LIST)
+    // this.updateDictionaries(HOPS_LIST, GRAINS_LIST)
   }
 
   updateDictionaries = (hopsList, grainsList) => {
@@ -159,6 +205,7 @@ export default class BeerCreate extends Component {
           />
           <TextField
             required
+            type="number"
             id="abv"
             label="Alcohol by volume - ABV (%)"
             margin="normal"
@@ -210,12 +257,50 @@ export default class BeerCreate extends Component {
 
   // TODO
   renderQuery = () => {
+    return (
+      <Query query={HOPSES_GRAINS_QUERY}>
+        {
+            ({ loading, error, data }) => {
+            if (loading) return <Loader />
+            if (error) return <Error error={error} />
+            this.updateDictionaries(data.hopses, data.grains)
+            return this.renderMutation(data.hopses, data.grains)
+          }
+        }
+      </Query>
+    )
   }
 
   // TODO
-  renderMutation = () => {
+  renderMutation = (hopsesList, grainsList) => {
+    const {
+      type,
+      brewery,
+      name,
+      description,
+      abv,
+      ibu,
+      ebc,
+      hops: hopses,
+      grains,
+    } = this.state
+
     return (
-      <Mutation></Mutation>
+      <Mutation
+      mutation={CREATE_BEER}
+      awaitRefetchQueries
+      variables={{ type, brewery, name, description, abv, ebc, ibu, hopses, grains }}
+      refetchQueries={[{ query: BEERS_QUERY}]}
+      onCompleted={() => {
+        this.props.history.push('/beers')
+      }}>
+        {(createBeer, { loading, error })=>{
+          if (loading) return <Loader />
+          if (error) return <Error error={error} />
+          return this.renderContent(hopsesList, grainsList, createBeer)
+        }}
+
+      </Mutation>
     )
   }
 
@@ -223,7 +308,7 @@ export default class BeerCreate extends Component {
     return (
       <Fragment>
         <h2>Create Beer</h2>
-        { this.renderContent() }
+        { this.renderQuery() }
       </Fragment>
     )
   }
