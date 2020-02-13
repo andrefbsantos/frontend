@@ -1,4 +1,5 @@
-import React, { Component, Fragment } from 'react'
+import React, { Component, Fragment, useState } from 'react'
+import { useHistory } from "react-router-dom";
 import { TextField } from '@material-ui/core'
 import styled from 'styled-components'
 import Button from '../components/Button'
@@ -28,34 +29,43 @@ const CREATE_GRAIN = gql`
   }
 `
 
-export default class GrainsCreate extends Component {
-  state = {
+export default function GrainsCreate () {
+  const [formData, setFormData] = useState({
     name: undefined,
     ebc: undefined,
     description: undefined,
+  })
+
+  const history = useHistory()
+
+  const onChange = (e) => {
+    e.preventDefault()
+    console.log(formData)
+    setFormData({
+      ...formData,
+      [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value,
+    })
   }
 
-  onChange = (e) => {
+  const onBlur = (e) => {
     e.preventDefault()
-    this.setState({ [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value })
-  }
-
-  onBlur = (e) => {
-    e.preventDefault()
-    if (this.state[e.target.id] === undefined) {
-      this.setState({ [e.target.id]: '' })
+    if (formData[e.target.id] === undefined) {
+      setFormData({
+        ...formData,
+        [e.target.id]: '',
+      })
     }
   }
 
-  hasError = (value) => value !== undefined && !value
+  const hasError = (value) => value !== undefined && !value
 
-  formIsValid = () => {
-    const { name, ebc, description } = this.state
-    return  !!name && !!ebc && !!description
+  const formIsValid = () => {
+    const { name, ebc, description } = formData
+    return !!name && !!ebc && !!description
   }
 
-  renderContent = (onClick) => {
-    const { name, ebc, description } = this.state;
+  const renderContent = (onClick) => {
+    const { name, ebc, description } = formData;
     return (
       <Section>
         <form>
@@ -66,9 +76,9 @@ export default class GrainsCreate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={name}
-            onChange={this.onChange}
-            error={this.hasError(name)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(name)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -78,9 +88,9 @@ export default class GrainsCreate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={ebc}
-            onChange={this.onChange}
-            error={this.hasError(ebc)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(ebc)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -90,19 +100,18 @@ export default class GrainsCreate extends Component {
             variant="outlined"
             multiline
             defaultValue={description}
-            onChange={this.onChange}
-            error={this.hasError(description)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(description)}
+            onBlur={onBlur}
           />
         </form>
-        <Button onClick={onClick} disabled={!this.formIsValid()}>CREATE</Button>
+        <Button onClick={onClick} disabled={!formIsValid()}>CREATE</Button>
       </Section>
     )
   }
 
-  // TODO
-  renderMutation = ( ) => {
-    const { name, ebc, description } = this.state;
+  const renderMutation = () => {
+    const { name, ebc, description } = formData;
     return <Mutation
       mutation={CREATE_GRAIN}
       variables={{name, ebc, description}}
@@ -110,24 +119,22 @@ export default class GrainsCreate extends Component {
       refetchQueries={[{ query: GRAINS_QUERY }]}
       onCompleted={({ hop }) => {
         console.log(hop)
-        this.props.history.push('/grains')
+        history.push('/grains')
       }}
     >
       {( createGrain, { loading, error } ) => {
         if (loading) return <Loader />
         if (error) return <Error error={error} />
 
-        return this.renderContent(createGrain)
+        return renderContent(createGrain)
       }}
     </Mutation>
   }
 
-  render() {
-    return (
-      <Fragment>
-        <h2>Create Grain</h2>
-        { this.renderMutation() }
-      </Fragment>
-    )
-  }
+  return (
+    <Fragment>
+      <h2>Create Grain</h2>
+      { renderMutation() }
+    </Fragment>
+  )
 }
