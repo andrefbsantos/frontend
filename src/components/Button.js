@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import styled from 'styled-components';
 import { Button as ButtonMaterial } from '@material-ui/core';
 
@@ -10,9 +10,6 @@ export const MyButton = styled(ButtonMaterial)`
   }
 `
 
-export default class Button extends Component {
-  render() {
-    const { onClick, disabled, children } = this.props
-    return <MyButton disabled={disabled} variant="outlined" color="secondary" onClick={onClick}>{children}</MyButton>
-  }
+export default function Button({ onClick, disabled, children }) {
+  return <MyButton disabled={disabled} variant="outlined" color="secondary" onClick={onClick}>{children}</MyButton>
 }

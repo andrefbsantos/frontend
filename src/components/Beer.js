@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 
 const BeerCard = styled.div`
@@ -39,16 +39,14 @@ const BeerCard = styled.div`
   }
 `
 
-export default class Beer extends Component {
-  render() {
-    return (
-      <BeerCard>
-        {/* eslint-disable-next-line */}
-        <img src={IMG_URL} alt="beer image" />
-        <p>{STRING}</p>
-      </BeerCard>
-    )
-  }
+export default function Beer() {
+  return (
+    <BeerCard>
+      {/* eslint-disable-next-line */}
+      <img src={IMG_URL} alt="beer image" />
+      <p>{STRING}</p>
+    </BeerCard>
+  )
 }
 
 const IMG_URL = 'https://dc8gwjuur0w0x.cloudfront.net/lists/avatars/000/000/047/original_o-PINT-GLASS-BEER-facebook.jpg'
