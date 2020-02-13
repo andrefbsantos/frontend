@@ -69,7 +69,7 @@ class Review extends Component {
             label="University / Course / Course year"
             margin="normal"
             variant="outlined"
-            helperText="eg: FCT / LEI / 3"
+            helperText="eg: IST / LEIC / 3"
             onChange={this.onChange}
           />
           <TextField
@@ -97,7 +97,7 @@ class Review extends Component {
           <TextField
             select
             name="useGraphQL"
-            label="Would you use GraphQL on FCT Nova Hackathon?"
+            label="Would you use GraphQL on your next project?"
             margin="normal"
             variant="outlined"
             value={useGraphQL || ''}
@@ -116,7 +116,7 @@ class Review extends Component {
           <TextField
             select
             name="internship"
-            label="Have you heard about Imaginary Cloud's academic internships with FCT?"
+            label="Have you heard about Imaginary Cloud's internships?"
             margin="normal"
             variant="outlined"
             value={internship || ''}
