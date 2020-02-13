@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { TextField } from '@material-ui/core'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
@@ -12,38 +12,41 @@ const Section = styled.section`
   }
 `
 
-class HopsUpdate extends Component {
-  constructor(props) {
-    super()
+function HopsUpdate({ history, match }) {
+  const [hops, setHops] = useState({
+    id: match.params.id,
+    name: undefined,
+    alphaAcids: undefined,
+    description: undefined,
+  })
 
-    this.state = {
-      id: props.match.params.id,
-      name: undefined,
-      alphaAcids: undefined,
-      description: undefined,
+
+  const onChange = (e) => {
+    e.preventDefault()
+    setHops({
+      ...hops,
+      [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value
+    })
+  }
+
+  const onBlur = (e) => {
+    e.preventDefault()
+    if (hops[e.target.id] === undefined) {
+     setHops({
+       ...hops,
+       [e.target.id]: ''
+      })
     }
   }
 
-  onChange = (e) => {
-    e.preventDefault()
-    this.setState({ [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value })
-  }
+  const hasError = (value) => value !== undefined && !value
 
-  onBlur = (e) => {
-    e.preventDefault()
-    if (this.state[e.target.id] === undefined) {
-      this.setState({ [e.target.id]: '' })
-    }
-  }
-
-  hasError = (value) => value !== undefined && !value
-
-  formIsValid = () => {
-    const { name, alphaAcids, description } = this.state
+  const formIsValid = () => {
+    const { name, alphaAcids, description } = hops
     return  !!name || !!alphaAcids || !!description
   }
 
-  renderContent = (hop, onClick) => {
+  const renderContent = (hop, onClick) => {
     const { id, name, alphaAcids, description } = hop;
     return (
       <Section>
@@ -63,9 +66,9 @@ class HopsUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={name}
-            onChange={this.onChange}
-            error={this.hasError(name)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(name)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -75,9 +78,9 @@ class HopsUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={alphaAcids}
-            onChange={this.onChange}
-            error={this.hasError(alphaAcids)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(alphaAcids)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -87,30 +90,28 @@ class HopsUpdate extends Component {
             variant="outlined"
             multiline
             defaultValue={description}
-            onChange={this.onChange}
-            error={this.hasError(description)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(description)}
+            onBlur={onBlur}
           />
         </form>
-        <Button onClick={onClick} disabled={!this.formIsValid()}>UPDATE</Button>
+        <Button onClick={onClick} disabled={!formIsValid()}>UPDATE</Button>
       </Section>
     )
   }
 
   // TODO
-  renderQuery = () => {}
+  const renderQuery = () => {}
 
   // TODO
-  renderMutation = () => {}
+  const renderMutation = () => {}
 
-  render() {
-    return (
-      <Fragment>
-        <h2>Update Hop</h2>
-        { this.renderContent(this.state) }
-      </Fragment>
-    )
-  }
+  return (
+    <Fragment>
+      <h2>Update Hop</h2>
+      { renderContent(hops) }
+    </Fragment>
+  )
 }
 
 export default withRouter(HopsUpdate)

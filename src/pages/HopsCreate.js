@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { TextField } from '@material-ui/core'
 import styled from 'styled-components'
@@ -28,34 +28,40 @@ const CREATE_HOP = gql`
   }
 `
 
-class HopsCreate extends Component {
-  state = {
+function HopsCreate({ history }) {
+  const [state, setState] = useState({
     name: undefined,
     alphaAcids: undefined,
     description: undefined,
+  })
+
+  const onChange = (e) => {
+    e.preventDefault()
+    setState({
+      ...state,
+      [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value
+    })
   }
 
-  onChange = (e) => {
+  const onBlur = (e) => {
     e.preventDefault()
-    this.setState({ [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value })
-  }
-
-  onBlur = (e) => {
-    e.preventDefault()
-    if (this.state[e.target.id] === undefined) {
-      this.setState({ [e.target.id]: '' })
+    if (state[e.target.id] === undefined) {
+      setState({
+        ...state,
+        [e.target.id]: ''
+      })
     }
   }
 
-  hasError = (value) => value !== undefined && !value
+  const hasError = (value) => value !== undefined && !value
 
-  formIsValid = () => {
-    const { name, alphaAcids, description } = this.state
+  const formIsValid = () => {
+    const { name, alphaAcids, description } = state
     return  !!name && !!alphaAcids && !!description
   }
 
-  renderContent = (onClick) => {
-    const { name, alphaAcids, description } = this.state;
+  const renderContent = (onClick) => {
+    const { name, alphaAcids, description } = state;
     return (
       <Section>
         <form>
@@ -66,9 +72,9 @@ class HopsCreate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={name}
-            onChange={this.onChange}
-            error={this.hasError(name)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(name)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -78,9 +84,9 @@ class HopsCreate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={alphaAcids}
-            onChange={this.onChange}
-            error={this.hasError(alphaAcids)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(alphaAcids)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -90,46 +96,44 @@ class HopsCreate extends Component {
             variant="outlined"
             multiline
             defaultValue={description}
-            onChange={this.onChange}
-            error={this.hasError(description)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(description)}
+            onBlur={onBlur}
           />
         </form>
-        <Button disabled={!this.formIsValid()} onClick={onClick}>CREATE</Button>
+        <Button disabled={!formIsValid()} onClick={onClick}>CREATE</Button>
       </Section>
     )
   }
 
-  renderMutation = () => {
+  const renderMutation = () => {
     return (
       <Mutation
         mutation={CREATE_HOP}
-        variables={{ data: { ...this.state } }}
+        variables={{ data: { ...state } }}
         refetchQueries={[{ query: HOPS_QUERY }]}
         awaitRefetchQueries
         onCompleted={({ hop }) => {
           console.log(hop)
-          this.props.history.push('/hops')
+          history.push('/hops')
         }}
       >
         {( createHops, { loading, error }) => {
           if (loading) return <Loader />
           if (error) return <Error error={error} />
 
-          return this.renderContent(createHops)
+          return renderContent(createHops)
         }}
       </Mutation>
     )
   }
 
-  render() {
-    return (
-      <Fragment>
-        <h2>Create Hop</h2>
-        { this.renderMutation() }
-      </Fragment>
-    )
-  }
+  return (
+    <Fragment>
+      <h2>Create Hop</h2>
+      { renderMutation() }
+    </Fragment>
+  )
 }
 
 export default withRouter(HopsCreate)
