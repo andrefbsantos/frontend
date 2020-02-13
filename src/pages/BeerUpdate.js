@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { withRouter } from 'react-router-dom'
 import { TextField } from '@material-ui/core'
 import styled from 'styled-components'
@@ -26,55 +26,60 @@ const Label = styled(InputLabel)`
 const MOCK_HOPS_LIST = [{id: 'asdbas', name: 'Citra'} , { id: 'aksdansj', name: 'Simcoe' }]
 const MOCK_GRAINS_LIST = [{ id: 123, name: 'Pils' }, { id: 12312, name: 'Pale Ale'}]
 
-class BeerUpdate extends Component {
-  constructor(props) {
-    super()
+function BeerUpdate({history, match}) {
+  const [state, setState] = useState({
+    id: match.params.id,
+    type: undefined,
+    brewery: undefined,
+    name: undefined,
+    description: undefined,
+    hops: [],
+    grains: [],
+    abv: undefined,
+    ibu: undefined,
+    ebc: undefined,
+  })
 
-    this.state = {
-      id: props.match.params.id,
-      type: undefined,
-      brewery: undefined,
-      name: undefined,
-      description: undefined,
-      hops: [],
-      grains: [],
-      abv: undefined,
-      ibu: undefined,
-      ebc: undefined,
-    }
+  // TODO: UPDATE WITH DATA FROM YOGA SERVER
+  const hopsDict = MOCK_HOPS_LIST.reduce((acc, item) => {
+    acc[item.id] = item.name
+    return acc
+  }, {})
 
-    // TODO: UPDATE WITH DATA FROM YOGA SERVER
-    this.hopsDict = MOCK_HOPS_LIST.reduce((acc, item) => {
-      acc[item.id] = item.name
-      return acc
-    }, {})
+  // TODO: UPDATE WITH DATA FROM YOGA SERVER
+  const grainsDict = MOCK_GRAINS_LIST.reduce((acc, item) => {
+    acc[item.id] = item.name
+    return acc
+  }, {})
 
-    // TODO: UPDATE WITH DATA FROM YOGA SERVER
-    this.grainsDict = MOCK_GRAINS_LIST.reduce((acc, item) => {
-      acc[item.id] = item.name
-      return acc
-    }, {})
-  }
-
-  onChange = (e) => {
+  const onChange = (e) => {
     e.preventDefault()
     if (e.target.name && !e.target.id) {
-      this.setState({ [e.target.name]: e.target.value })
+      setState({
+        ...state,
+        [e.target.name]: e.target.value
+      })
     } else {
-      this.setState({ [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value })
+      setState({
+        ...state,
+        [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value
+      })
     }
   }
 
-  onBlur = (e) => {
+  const onBlur = (e) => {
     e.preventDefault()
-    if (this.state[e.target.id] === undefined) {
-      this.setState({ [e.target.id]: '' })
+    if (state[e.target.id] === undefined) {
+      setState({
+        ...state,
+        [e.target.id]: ''
+      })
     }
   }
 
-  hasError = (value) => value !== undefined && !value
+  const hasError = (value) => value !== undefined && !value
 
-  formIsValid = () => {
+  const formIsValid = () => {
     const {
       type,
       brewery,
@@ -83,11 +88,11 @@ class BeerUpdate extends Component {
       abv,
       hops,
       grains
-    } = this.state
+    } = state
     return  !!type || !!brewery || !!name || !!description || !!abv || (!!hops && hops.length > 0) || (!!grains && grains.length > 0)
   }
 
-  renderSelect = (name, value, opt) => {
+  const renderSelect = (name, value, opt) => {
     const upperCaseName = name.slice(0, 1).toUpperCase() + name.slice(1, name.length)
     return (
       <Fragment>
@@ -97,11 +102,11 @@ class BeerUpdate extends Component {
           multiple
           variant="outlined"
           value={value}
-          onChange={this.onChange}
+          onChange={onChange}
           input={<OutlinedInput labelWidth={0} type="select" name={name} />}
           renderValue={selected => (
             <div>
-              {selected.map(value => <Chip key={value} label={this[`${name}Dict`][value]} color="secondary" />)}
+              {selected.map(value => <Chip key={value} label={name === 'hops' ? hopsDict[value] : grainsDict[value]} color="secondary" />)}
             </div>
           )}
         >
@@ -116,8 +121,8 @@ class BeerUpdate extends Component {
     )
   }
 
-  renderContent = (hopsList, grainsList, onClick) => {
-    const { id, type, brewery, name, description, hops, grains, abv, ibu, ebc } = this.state;
+  const renderContent = (hopsList, grainsList, onClick) => {
+    const { id, type, brewery, name, description, hops, grains, abv, ibu, ebc } = state;
     return (
       <Section>
         <form>
@@ -136,9 +141,9 @@ class BeerUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={type}
-            onChange={this.onChange}
-            error={this.hasError(type)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(type)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -147,9 +152,9 @@ class BeerUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={brewery}
-            onChange={this.onChange}
-            error={this.hasError(brewery)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(brewery)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -158,9 +163,9 @@ class BeerUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={name}
-            onChange={this.onChange}
-            error={this.hasError(name)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(name)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -169,9 +174,9 @@ class BeerUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={abv}
-            onChange={this.onChange}
-            error={this.hasError(abv)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(abv)}
+            onBlur={onBlur}
           />
           <TextField
             id="ibu"
@@ -180,8 +185,8 @@ class BeerUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={ibu}
-            onChange={this.onChange}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            onBlur={onBlur}
           />
           <TextField
             id="ebc"
@@ -190,8 +195,8 @@ class BeerUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={ebc}
-            onChange={this.onChange}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -201,33 +206,31 @@ class BeerUpdate extends Component {
             variant="outlined"
             multiline
             defaultValue={description}
-            onChange={this.onChange}
-            error={this.hasError(description)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(description)}
+            onBlur={onBlur}
           />
-          { this.renderSelect('hops', hops, hopsList) }
-          { this.renderSelect('grains', grains, grainsList) }
+          { renderSelect('hops', hops, hopsList) }
+          { renderSelect('grains', grains, grainsList) }
         </form>
-        <Button onClick={onClick} disabled={!this.formIsValid()}>Update</Button>
+        <Button onClick={onClick} disabled={!formIsValid()}>Update</Button>
       </Section>
     )
   }
 
   // TODO
-  renderQuery = () => {}
+  const renderQuery = () => {}
 
   // TODO
-  renderMutation = () => {}
+  const renderMutation = () => {}
 
-  render() {
-    return (
-      <Fragment>
-        <h2>Update Beer</h2>
-        {/* TODO: UPDATE LISTS FOR renderContent func */}
-        { this.renderContent(MOCK_HOPS_LIST, MOCK_GRAINS_LIST) }
-      </Fragment>
-    )
-  }
+  return (
+    <Fragment>
+      <h2>Update Beer</h2>
+      {/* TODO: UPDATE LISTS FOR renderContent func */}
+      { renderContent(MOCK_HOPS_LIST, MOCK_GRAINS_LIST) }
+    </Fragment>
+  )
 }
 
 export default withRouter(BeerUpdate)

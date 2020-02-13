@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment } from 'react'
 
 import { withRouter, Link } from 'react-router-dom'
 import { Query } from "react-apollo"
@@ -38,7 +38,7 @@ const HEADERS = [
   { key: 'type', name: 'Beer Type' },
 ]
 
-class Beers extends Component {
+function Beers({ history }) {
   /**
    * args
    *   headers: [{ key: string, name: string }, ...]
@@ -47,17 +47,17 @@ class Beers extends Component {
    * headers | array of objects containing the object key for the value as a string and the name to be displayed in the table header
    * rows | array of objects containing the keys with the needed values for the table body PLUS an id
    */
-  renderContent = (headers, rows) => {
+  const renderContent = (headers, rows) => {
     if (!headers || !Array.isArray(headers)) {
       return <Error error={{ message: 'Headers is not a array'}}><code>typeof of headers is: {typeof headers}</code></Error>
     } else if (!rows || !Array.isArray(rows)) {
       return <Error error={{ message: 'Rows is not a array'}}><code>typeof of rows is: {typeof rows}</code></Error>
     }
 
-    return <Table headers={headers} rows={rows} onRowClick={this.rowTableOnClick} />
+    return <Table headers={headers} rows={rows} onRowClick={rowTableOnClick} />
   }
 
-  renderStaticView = () => {
+  const renderStaticView = () => {
     return (
       <Static>
         <p>But why beer?</p>
@@ -80,16 +80,16 @@ class Beers extends Component {
     )
   }
 
-  onClick = (e) => {
+  const onClick = (e) => {
     e.preventDefault()
-    this.props.history.push('/beers/new')
+    history.push('/beers/new')
   }
 
-  rowTableOnClick = (id) => {
-    this.props.history.push(`/beers/${id}`)
+  const rowTableOnClick = (id) => {
+    history.push(`/beers/${id}`)
   }
 
-  renderQuery = () => {
+  const renderQuery = () => {
     return (
       <Query query={BEERS_QUERY}>
         {({ loading, error, data }) => {
@@ -105,28 +105,26 @@ class Beers extends Component {
           //   abv: 9.1,
           //   type: 'Double IPA'
           // }]
-          return this.renderContent(HEADERS, data.beers);
+          return renderContent(HEADERS, data.beers);
         }}
       </Query>
     )
   }
 
-  render() {
-    return (
-      <section>
-        <h2>Beers</h2>
-        {
-          DEVELOPMENT_IS_READY
-          ?
-            <Fragment>
-              {this.renderQuery()}
-              <Button onClick={this.onClick}>NEW BEER</Button>
-            </Fragment>
-          :
-            this.renderStaticView() }
-      </section>
-    )
-  }
+  return (
+    <section>
+      <h2>Beers</h2>
+      {
+        DEVELOPMENT_IS_READY
+        ?
+          <Fragment>
+            {renderQuery()}
+            <Button onClick={onClick}>NEW BEER</Button>
+          </Fragment>
+        :
+          renderStaticView() }
+    </section>
+  )
 }
 
 export default withRouter(Beers);
