@@ -1,5 +1,5 @@
-import React, { Component, Fragment, useState } from 'react'
-import { useHistory } from "react-router-dom";
+import React, { Fragment, useState } from 'react'
+import { withRouter } from "react-router-dom";
 import { TextField } from '@material-ui/core'
 import styled from 'styled-components'
 import Button from '../components/Button'
@@ -29,14 +29,12 @@ const CREATE_GRAIN = gql`
   }
 `
 
-export default function GrainsCreate () {
+function GrainsCreate ({ history }) {
   const [formData, setFormData] = useState({
     name: undefined,
     ebc: undefined,
     description: undefined,
   })
-
-  const history = useHistory()
 
   const onChange = (e) => {
     e.preventDefault()
@@ -138,3 +136,6 @@ export default function GrainsCreate () {
     </Fragment>
   )
 }
+
+
+export default withRouter(GrainsCreate)

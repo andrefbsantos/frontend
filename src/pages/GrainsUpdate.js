@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import { TextField } from '@material-ui/core'
 import styled from 'styled-components'
 import { withRouter } from 'react-router-dom'
@@ -12,38 +12,40 @@ const Section = styled.section`
   }
 `
 
-class GrainsUpdate extends Component {
-  constructor(props) {
-    super()
+function GrainsUpdate({history, match}) {
+  const [state, setState] = useState({
+    id: match.params.id,
+    name: undefined,
+    ebc: undefined,
+    description: undefined,
+  })
 
-    this.state = {
-      id: props.match.params.id,
-      name: undefined,
-      ebc: undefined,
-      description: undefined,
+  const onChange = (e) => {
+    e.preventDefault()
+    setState({
+      ...state,
+      [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value
+    })
+  }
+
+  const onBlur = (e) => {
+    e.preventDefault()
+    if (state[e.target.id] === undefined) {
+      setState({
+        ...state,
+        [e.target.id]: ''
+      })
     }
   }
 
-  onChange = (e) => {
-    e.preventDefault()
-    this.setState({ [e.target.id]: e.target.type === 'number' ? Number(e.target.value) : e.target.value })
-  }
+  const hasError = (value) => value !== undefined && !value
 
-  onBlur = (e) => {
-    e.preventDefault()
-    if (this.state[e.target.id] === undefined) {
-      this.setState({ [e.target.id]: '' })
-    }
-  }
-
-  hasError = (value) => value !== undefined && !value
-
-  formIsValid = () => {
-    const { name, ebc, description } = this.state
+  const formIsValid = () => {
+    const { name, ebc, description } = state
     return  !!name || !!ebc || !!description
   }
 
-  renderContent = (hop, onClick) => {
+  const renderContent = (hop, onClick) => {
     const { id, name, ebc, description } = hop;
     return (
       <Section>
@@ -63,9 +65,9 @@ class GrainsUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={name}
-            onChange={this.onChange}
-            error={this.hasError(name)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(name)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -75,9 +77,9 @@ class GrainsUpdate extends Component {
             margin="normal"
             variant="outlined"
             defaultValue={ebc}
-            onChange={this.onChange}
-            error={this.hasError(ebc)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(ebc)}
+            onBlur={onBlur}
           />
           <TextField
             required
@@ -87,32 +89,30 @@ class GrainsUpdate extends Component {
             variant="outlined"
             multiline
             defaultValue={description}
-            onChange={this.onChange}
-            error={this.hasError(description)}
-            onBlur={this.onBlur}
+            onChange={onChange}
+            error={hasError(description)}
+            onBlur={onBlur}
           />
         </form>
-        <Button onClick={onClick} disabled={!this.formIsValid()}>UPDATE</Button>
+        <Button onClick={onClick} disabled={!formIsValid()}>UPDATE</Button>
       </Section>
     )
   }
 
   // TODO
-  renderQuery = () => {
+  const renderQuery = () => {
   }
 
   // TODO
-  renderMutation = () => {
+  const renderMutation = () => {
   }
 
-  render() {
-    return (
-      <Fragment>
-        <h2>Update Grain</h2>
-        { this.renderContent(this.state) }
-      </Fragment>
-    )
-  }
+  return (
+    <Fragment>
+      <h2>Update Grain</h2>
+      { renderContent(state) }
+    </Fragment>
+  )
 }
 
 export default withRouter(GrainsUpdate)
